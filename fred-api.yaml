@@ -47,6 +47,37 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Category'
+  /category/children:
+    get:
+      summary: Get a category's child categories.
+      description: Get the children for a category.
+      operationId: getCategoryChildren
+      tags:
+        - category
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: category_id
+          in: query
+          description: The id for a category.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
             application/xml:
               schema:
                 type: object
@@ -55,6 +86,269 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Category'
+  /category/related:
+    get:
+      summary: Get related categories.
+      description: Get a category's related categories.
+      operationId: getCategoryRelated
+      tags:
+        - category
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: category_id
+          in: query
+          description: The id for a category.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+  /category/series:
+    get:
+      summary: Get the series in a category.
+      description: Get the series for a category.
+      operationId: getCategorySeries
+      tags:
+        - category
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: category_id
+          in: query
+          description: The id for a category.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by the specified attribute.
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/sort_order'
+        - name: filter_variable
+          in: query
+          description: Attribute to filter results by.
+          required: false
+          schema:
+            type: string
+            enum:
+              - frequency
+              - units
+              - seasonal_adjustment
+        - name: filter_value
+          in: query
+          description: The value of the filter_variable attribute.
+          required: false
+          schema:
+            type: string
+        - name: tag_names
+          in: query
+          description: Semicolon delimited tag names that series match all of.
+          required: false
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited tag names that series match none of.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  seriess:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Series'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  seriess:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Series'
+  /category/tags:
+    get:
+      summary: Get tags for a category.
+      description: Get all tags for a category.
+      operationId: getCategoryTags
+      tags:
+        - category
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: category_id
+          in: query
+          description: The id for a category.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited tag names to include.
+          required: false
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: Filter tags by group id.
+          required: false
+          schema:
+            type: string
+        - name: search_text
+          in: query
+          description: Words to match tag names.
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by tag attribute.
+          required: false
+          schema:
+            type: string
+            enum:
+              - series_count
+              - popularity
+              - created
+              - name
+              - group_id
+            default: series_count
+        - $ref: '#/components/parameters/sort_order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+  /category/related_tags:
+    get:
+      summary: Get related tags for a category.
+      description: Get tags related to a set of category tags.
+      operationId: getCategoryRelatedTags
+      tags:
+        - category
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: category_id
+          in: query
+          description: The id for a category.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited tag names that series match all of.
+          required: true
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited tag names that series match none of.
+          required: false
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: Filter tags by group id.
+          required: false
+          schema:
+            type: string
+        - name: search_text
+          in: query
+          description: Words to match tag names.
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by tag attribute.
+          required: false
+          schema:
+            type: string
+            enum:
+              - series_count
+              - popularity
+              - created
+              - name
+              - group_id
+            default: series_count
+        - $ref: '#/components/parameters/sort_order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
   /releases:
     get:
       summary: Get all releases of economic data.
@@ -83,6 +377,36 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Release'
+  /release:
+    get:
+      summary: Get a release of economic data.
+      description: Get a release of economic data.
+      operationId: getRelease
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: release_id
+          in: query
+          description: The id for a release.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  releases:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Release'
             application/xml:
               schema:
                 type: object
@@ -91,6 +415,348 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Release'
+  /release/dates:
+    get:
+      summary: Get release dates for a single release.
+      description: Get release dates for a release.
+      operationId: getReleaseDates
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: release_id
+          in: query
+          description: The id for a release.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: sort_order
+          in: query
+          description: Sort release dates ascending or descending.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: include_release_dates_with_no_data
+          in: query
+          description: Whether to include release dates that have no data.
+          required: false
+          schema:
+            type: string
+            enum: ['true', 'false']
+            default: 'false'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  release_dates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReleaseDate'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  release_dates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReleaseDate'
+  /releases/dates:
+    get:
+      summary: Get release dates for all releases.
+      description: Get dates for all releases of economic data.
+      operationId: getReleasesDates
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by the specified attribute.
+          required: false
+          schema:
+            type: string
+            enum:
+              - release_date
+              - release_id
+              - release_name
+            default: release_date
+        - name: sort_order
+          in: query
+          description: Sort results ascending or descending.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: include_release_dates_with_no_data
+          in: query
+          description: Whether to include release dates that have no data.
+          required: false
+          schema:
+            type: string
+            enum: ['true', 'false']
+            default: 'false'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  release_dates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReleaseDate'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  release_dates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReleaseDate'
+  /release/series:
+    get:
+      summary: Get series for a release.
+      description: Get all series for a release.
+      operationId: getReleaseSeries
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: release_id
+          in: query
+          description: The id for a release.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute.
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/sort_order'
+        - name: filter_variable
+          in: query
+          description: Attribute to filter results by.
+          required: false
+          schema:
+            type: string
+            enum:
+              - frequency
+              - units
+              - seasonal_adjustment
+        - name: filter_value
+          in: query
+          description: The value of the filter_variable attribute.
+          required: false
+          schema:
+            type: string
+        - name: tag_names
+          in: query
+          description: Semicolon delimited tag names that series match all of.
+          required: false
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited tag names that series match none of.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  seriess:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Series'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  seriess:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Series'
+  /release/tags:
+    get:
+      summary: Get tags for a release.
+      description: Get all tags for a release.
+      operationId: getReleaseTags
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: release_id
+          in: query
+          description: The id for a release.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited tag names to include.
+          required: false
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: Filter tags by group id.
+          required: false
+          schema:
+            type: string
+        - name: search_text
+          in: query
+          description: Words to match tag names.
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by tag attribute.
+          required: false
+          schema:
+            type: string
+            enum:
+              - series_count
+              - popularity
+              - created
+              - name
+              - group_id
+            default: series_count
+        - $ref: '#/components/parameters/sort_order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+  /release/related_tags:
+    get:
+      summary: Get related tags for a release.
+      description: Get tags related to a set of release tags.
+      operationId: getReleaseRelatedTags
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: release_id
+          in: query
+          description: The id for a release.
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited tag names that series match all of.
+          required: true
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited tag names that series match none of.
+          required: false
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: Filter tags by group id.
+          required: false
+          schema:
+            type: string
+        - name: search_text
+          in: query
+          description: Words to match tag names.
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - name: order_by
+          in: query
+          description: Order results by tag attribute.
+          required: false
+          schema:
+            type: string
+            enum:
+              - series_count
+              - popularity
+              - created
+              - name
+              - group_id
+            default: series_count
+        - $ref: '#/components/parameters/sort_order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
 components:
   schemas:
     Category:
@@ -123,6 +789,70 @@ components:
         link:
           type: string
           format: uri
+    Series:
+      type: object
+      properties:
+        id:
+          type: string
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        title:
+          type: string
+        observation_start:
+          type: string
+          format: date
+        observation_end:
+          type: string
+          format: date
+        frequency:
+          type: string
+        frequency_short:
+          type: string
+        units:
+          type: string
+        units_short:
+          type: string
+        seasonal_adjustment:
+          type: string
+        seasonal_adjustment_short:
+          type: string
+        last_updated:
+          type: string
+          format: date-time
+        popularity:
+          type: integer
+        group_popularity:
+          type: integer
+        notes:
+          type: string
+    Tag:
+      type: object
+      properties:
+        name:
+          type: string
+        group_id:
+          type: string
+        notes:
+          type: string
+        created:
+          type: string
+          format: date-time
+        popularity:
+          type: integer
+        series_count:
+          type: integer
+    ReleaseDate:
+      type: object
+      properties:
+        release_id:
+          type: integer
+        date:
+          type: string
+          format: date
   parameters:
     api_key:
       name: api_key
