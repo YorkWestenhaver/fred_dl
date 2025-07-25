@@ -1,0 +1,1380 @@
+openapi: 3.0.3
+info:
+  title: FRED API
+  description: |
+    The FRED® API is a web service that allows developers to write programs and build applications 
+    that retrieve economic data from the FRED® and ALFRED® websites hosted by the Economic Research 
+    Division of the Federal Reserve Bank of St. Louis. Requests can be customized according to data 
+    source, release, category, series, and other preferences.
+    
+    ## Authentication
+    All requests require an API key. You can request a free API key at:
+    https://fredaccount.stlouisfed.org/apikeys
+    
+    ## Rate Limiting
+    The API is limited to 120 requests per minute per API key.
+
+  version: 1.0.0
+  contact:
+    name: Federal Reserve Bank of St. Louis
+    url: https://fred.stlouisfed.org
+  license:
+    name: FRED API Terms of Use
+    url: https://fred.stlouisfed.org/docs/api/terms_of_use.html
+
+servers:
+  - url: https://api.stlouisfed.org
+    description: Production server
+
+security:
+  - apiKey: [ ]
+
+paths:
+  /fred/series:
+    get:
+      tags:
+        - Series
+      summary: Get economic data series
+      description: Get economic data series metadata
+      operationId: getSeries
+      parameters:
+        - $ref: '#/components/parameters/SeriesId'
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SeriesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /fred/series/observations:
+    get:
+      tags:
+        - Series
+      summary: Get observations for an economic data series
+      description: |
+        Get the observations or data values for an economic data series.
+        The API can perform frequency aggregation and data transformations.
+      operationId: getSeriesObservations
+      parameters:
+        - $ref: '#/components/parameters/SeriesId'
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/ObservationStart'
+        - $ref: '#/components/parameters/ObservationEnd'
+        - $ref: '#/components/parameters/Units'
+        - $ref: '#/components/parameters/Frequency'
+        - $ref: '#/components/parameters/AggregationMethod'
+        - $ref: '#/components/parameters/OutputType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservationsResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ObservationsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /fred/series/search:
+    get:
+      tags:
+        - Series
+      summary: Search for economic data series
+      description: Search for economic data series using keywords
+      operationId: searchSeries
+      parameters:
+        - name: search_text
+          in: query
+          description: The search query
+          required: true
+          schema:
+            type: string
+        - name: search_type
+          in: query
+          description: Determines the type of search
+          schema:
+            type: string
+            enum: [ full_text, series_id ]
+            default: full_text
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ search_rank, series_id, title, units, frequency, seasonal_adjustment, realtime_start, realtime_end, last_updated, observation_start, observation_end, popularity ]
+            default: search_rank
+        - $ref: '#/components/parameters/SortOrder'
+        - name: filter_variable
+          in: query
+          description: The filter variable
+          schema:
+            type: string
+            enum: [ frequency, units, seasonal_adjustment ]
+        - name: filter_value
+          in: query
+          description: The filter value
+          schema:
+            type: string
+        - name: tag_names
+          in: query
+          description: Semicolon delimited list of tag names
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited list of tag names to exclude
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesSearchResponse'
+
+  /fred/series/categories:
+    get:
+      tags:
+        - Series
+      summary: Get categories for a series
+      description: Get the categories for an economic data series
+      operationId: getSeriesCategories
+      parameters:
+        - $ref: '#/components/parameters/SeriesId'
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesResponse'
+
+  /fred/series/release:
+    get:
+      tags:
+        - Series
+      summary: Get release for a series
+      description: Get the release for an economic data series
+      operationId: getSeriesRelease
+      parameters:
+        - $ref: '#/components/parameters/SeriesId'
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseResponse'
+
+  /fred/series/tags:
+    get:
+      tags:
+        - Series
+      summary: Get tags for a series
+      description: Get the tags for an economic data series
+      operationId: getSeriesTags
+      parameters:
+        - $ref: '#/components/parameters/SeriesId'
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ series_count, popularity, created, name, group_id ]
+            default: series_count
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+  /fred/series/updates:
+    get:
+      tags:
+        - Series
+      summary: Get recently updated series
+      description: Get economic data series sorted by when observations were updated
+      operationId: getSeriesUpdates
+      parameters:
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: filter_value
+          in: query
+          description: Filter by type of geographic region or data
+          schema:
+            type: string
+            enum: [ all, macro, regional ]
+            default: all
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesUpdatesResponse'
+
+  /fred/series/vintagedates:
+    get:
+      tags:
+        - Series
+      summary: Get vintage dates for a series
+      description: Get the dates in history when a series' data values were revised
+      operationId: getSeriesVintageDates
+      parameters:
+        - $ref: '#/components/parameters/SeriesId'
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VintageDatesResponse'
+
+  /fred/category:
+    get:
+      tags:
+        - Categories
+      summary: Get a category
+      description: Get detailed information for a category
+      operationId: getCategory
+      parameters:
+        - name: category_id
+          in: query
+          description: The category identifier
+          required: true
+          schema:
+            type: integer
+            default: 0
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+  /fred/category/children:
+    get:
+      tags:
+        - Categories
+      summary: Get child categories
+      description: Get the child categories for a specified parent category
+      operationId: getCategoryChildren
+      parameters:
+        - name: category_id
+          in: query
+          description: The category identifier
+          required: true
+          schema:
+            type: integer
+            default: 0
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesResponse'
+
+  /fred/category/related:
+    get:
+      tags:
+        - Categories
+      summary: Get related categories
+      description: Get the related categories for a category
+      operationId: getRelatedCategories
+      parameters:
+        - name: category_id
+          in: query
+          description: The category identifier
+          required: true
+          schema:
+            type: integer
+            default: 0
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesResponse'
+
+  /fred/category/series:
+    get:
+      tags:
+        - Categories
+      summary: Get series in a category
+      description: Get the series in a category
+      operationId: getCategorySeries
+      parameters:
+        - name: category_id
+          in: query
+          description: The category identifier
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ series_id, title, units, frequency, seasonal_adjustment, realtime_start, realtime_end, last_updated, observation_start, observation_end, popularity ]
+            default: series_id
+        - $ref: '#/components/parameters/SortOrder'
+        - name: filter_variable
+          in: query
+          description: The filter variable
+          schema:
+            type: string
+            enum: [ frequency, units, seasonal_adjustment ]
+        - name: filter_value
+          in: query
+          description: The filter value
+          schema:
+            type: string
+        - name: tag_names
+          in: query
+          description: Semicolon delimited list of tag names
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited list of tag names to exclude
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesSearchResponse'
+
+  /fred/category/tags:
+    get:
+      tags:
+        - Categories
+      summary: Get tags for a category
+      description: Get the tags for a category
+      operationId: getCategoryTags
+      parameters:
+        - name: category_id
+          in: query
+          description: The category identifier
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited list of tag names
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: A tag group id to filter tags
+          schema:
+            type: string
+            enum: [ freq, gen, geo, geot, rls, seas, src ]
+        - name: search_text
+          in: query
+          description: Search text to find matching tags
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ series_count, popularity, created, name, group_id ]
+            default: series_count
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+  /fred/releases:
+    get:
+      tags:
+        - Releases
+      summary: Get all releases
+      description: Get all releases of economic data
+      operationId: getAllReleases
+      parameters:
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ release_id, name, press_release, realtime_start, realtime_end ]
+            default: release_id
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleasesResponse'
+
+  /fred/release:
+    get:
+      tags:
+        - Releases
+      summary: Get a release
+      description: Get a release of economic data
+      operationId: getRelease
+      parameters:
+        - name: release_id
+          in: query
+          description: The release identifier
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseResponse'
+
+  /fred/release/dates:
+    get:
+      tags:
+        - Releases
+      summary: Get release dates
+      description: Get release dates for a release of economic data
+      operationId: getReleaseDates
+      parameters:
+        - name: release_id
+          in: query
+          description: The release identifier
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/SortOrder'
+        - name: include_release_dates_with_no_data
+          in: query
+          description: Include release dates that do not have data
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseDatesResponse'
+
+  /fred/sources:
+    get:
+      tags:
+        - Sources
+      summary: Get all sources
+      description: Get all sources of economic data
+      operationId: getAllSources
+      parameters:
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ source_id, name, realtime_start, realtime_end ]
+            default: source_id
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourcesResponse'
+
+  /fred/source:
+    get:
+      tags:
+        - Sources
+      summary: Get a source
+      description: Get a source of economic data
+      operationId: getSource
+      parameters:
+        - name: source_id
+          in: query
+          description: The source identifier
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceResponse'
+
+  /fred/tags:
+    get:
+      tags:
+        - Tags
+      summary: Get all tags
+      description: Get FRED tags
+      operationId: getAllTags
+      parameters:
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited list of tag names
+          required: true
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: A tag group id to filter tags
+          schema:
+            type: string
+            enum: [ freq, gen, geo, geot, rls, seas, src ]
+        - name: search_text
+          in: query
+          description: Search text to find matching tags
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ series_count, popularity, created, name, group_id ]
+            default: series_count
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+  /fred/related_tags:
+    get:
+      tags:
+        - Tags
+      summary: Get related tags
+      description: Get related FRED tags for one or more tags
+      operationId: getRelatedTags
+      parameters:
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - name: tag_names
+          in: query
+          description: Semicolon delimited list of tag names
+          required: true
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited list of tag names to exclude
+          schema:
+            type: string
+        - name: tag_group_id
+          in: query
+          description: A tag group id to filter tags
+          schema:
+            type: string
+            enum: [ freq, gen, geo, geot, rls, seas, src ]
+        - name: search_text
+          in: query
+          description: Search text to find matching tags
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ series_count, popularity, created, name, group_id ]
+            default: series_count
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+  /fred/tags/series:
+    get:
+      tags:
+        - Tags
+      summary: Get series matching tags
+      description: Get the series matching tag names
+      operationId: getTagsSeries
+      parameters:
+        - name: tag_names
+          in: query
+          description: Semicolon delimited list of tag names
+          required: true
+          schema:
+            type: string
+        - name: exclude_tag_names
+          in: query
+          description: Semicolon delimited list of tag names to exclude
+          schema:
+            type: string
+        - $ref: '#/components/parameters/RealtimeStart'
+        - $ref: '#/components/parameters/RealtimeEnd'
+        - $ref: '#/components/parameters/FileType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: order_by
+          in: query
+          description: Order results by attribute
+          schema:
+            type: string
+            enum: [ series_id, title, units, frequency, seasonal_adjustment, realtime_start, realtime_end, last_updated, observation_start, observation_end, popularity ]
+            default: series_id
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesSearchResponse'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: api_key
+      description: Your FRED API key
+
+  parameters:
+    SeriesId:
+      name: series_id
+      in: query
+      description: The series identifier
+      required: true
+      schema:
+        type: string
+      example: GNPCA
+
+    RealtimeStart:
+      name: realtime_start
+      in: query
+      description: The start of the real-time period (YYYY-MM-DD)
+      schema:
+        type: string
+        format: date
+
+    RealtimeEnd:
+      name: realtime_end
+      in: query
+      description: The end of the real-time period (YYYY-MM-DD)
+      schema:
+        type: string
+        format: date
+
+    ObservationStart:
+      name: observation_start
+      in: query
+      description: The observation start date (YYYY-MM-DD)
+      schema:
+        type: string
+        format: date
+        default: "1776-07-04"
+
+    ObservationEnd:
+      name: observation_end
+      in: query
+      description: The observation end date (YYYY-MM-DD)
+      schema:
+        type: string
+        format: date
+        default: "9999-12-31"
+
+    FileType:
+      name: file_type
+      in: query
+      description: File format for the response
+      schema:
+        type: string
+        enum: [ xml, json, xlsx, csv ]
+        default: xml
+
+    Units:
+      name: units
+      in: query
+      description: Data transformation
+      schema:
+        type: string
+        enum: [ lin, chg, ch1, pch, pc1, pca, cch, cca, log ]
+        default: lin
+
+    Frequency:
+      name: frequency
+      in: query
+      description: |
+        Frequency aggregation parameter. Valid values:
+        - d = Daily
+        - w = Weekly
+        - bw = Biweekly
+        - m = Monthly
+        - q = Quarterly
+        - sa = Semiannual
+        - a = Annual
+        - wef = Weekly, Ending Friday
+        - weth = Weekly, Ending Thursday
+        - wew = Weekly, Ending Wednesday
+        - wetu = Weekly, Ending Tuesday
+        - wem = Weekly, Ending Monday
+        - wesu = Weekly, Ending Sunday
+        - wesa = Weekly, Ending Saturday
+        - bwew = Biweekly, Ending Wednesday
+        - bwem = Biweekly, Ending Monday
+      schema:
+        type: string
+        enum: [ d, w, bw, m, q, sa, a, wef, weth, wew, wetu, wem, wesu, wesa, bwew, bwem ]
+
+    AggregationMethod:
+      name: aggregation_method
+      in: query
+      description: Aggregation method for frequency aggregation
+      schema:
+        type: string
+        enum: [ avg, sum, eop ]
+        default: avg
+
+    OutputType:
+      name: output_type
+      in: query
+      description: |
+        Output format:
+        - 1 = Observations by real-time period
+        - 2 = Observations by vintage date (all observations)
+        - 3 = Observations by vintage date (new and revised observations only)
+        - 4 = Observations (initial release only)
+      schema:
+        type: integer
+        enum: [ 1, 2, 3, 4 ]
+        default: 1
+
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of results to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100000
+        default: 1000
+
+    Offset:
+      name: offset
+      in: query
+      description: Result offset for pagination
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    SortOrder:
+      name: sort_order
+      in: query
+      description: Sort order
+      schema:
+        type: string
+        enum: [ asc, desc ]
+        default: asc
+
+  schemas:
+    Series:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Series ID
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        title:
+          type: string
+          description: Series title
+        observation_start:
+          type: string
+          format: date
+        observation_end:
+          type: string
+          format: date
+        frequency:
+          type: string
+          description: Data frequency
+        frequency_short:
+          type: string
+          description: Abbreviated frequency
+        units:
+          type: string
+          description: Data units
+        units_short:
+          type: string
+          description: Abbreviated units
+        seasonal_adjustment:
+          type: string
+          description: Seasonal adjustment type
+        seasonal_adjustment_short:
+          type: string
+          description: Abbreviated seasonal adjustment
+        last_updated:
+          type: string
+          format: date-time
+          description: Last updated timestamp
+        popularity:
+          type: integer
+          description: Series popularity score
+        notes:
+          type: string
+          description: Series notes and description
+
+    SeriesResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        seriess:
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+
+    Observation:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        date:
+          type: string
+          format: date
+          description: Observation date
+        value:
+          type: string
+          description: Observation value
+
+    ObservationsResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        observation_start:
+          type: string
+          format: date
+        observation_end:
+          type: string
+          format: date
+        units:
+          type: string
+        output_type:
+          type: integer
+        file_type:
+          type: string
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+          description: Total number of observations
+        offset:
+          type: integer
+        limit:
+          type: integer
+        observations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Observation'
+
+    SeriesSearchResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        seriess:
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Category ID
+        name:
+          type: string
+          description: Category name
+        parent_id:
+          type: integer
+          description: Parent category ID
+
+    CategoryResponse:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    CategoriesResponse:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Release:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Release ID
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        name:
+          type: string
+          description: Release name
+        press_release:
+          type: boolean
+          description: Has press release
+        link:
+          type: string
+          format: uri
+          description: Release link
+
+    ReleaseResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        releases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Release'
+
+    ReleasesResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        releases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Release'
+
+    ReleaseDate:
+      type: object
+      properties:
+        release_id:
+          type: integer
+        release_name:
+          type: string
+        date:
+          type: string
+          format: date
+
+    ReleaseDatesResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        release_dates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReleaseDate'
+
+    Source:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Source ID
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        name:
+          type: string
+          description: Source name
+        link:
+          type: string
+          format: uri
+          description: Source link
+
+    SourceResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+
+    SourcesResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+
+    Tag:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Tag name
+        group_id:
+          type: string
+          description: Tag group ID
+        notes:
+          type: string
+          description: Tag notes
+        created:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        popularity:
+          type: integer
+          description: Tag popularity score
+        series_count:
+          type: integer
+          description: Number of series with this tag
+
+    TagsResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+
+    SeriesUpdate:
+      type: object
+      properties:
+        series_id:
+          type: string
+        title:
+          type: string
+        units:
+          type: string
+        frequency:
+          type: string
+        seasonal_adjustment:
+          type: string
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        last_updated:
+          type: string
+          format: date-time
+        observation_start:
+          type: string
+          format: date
+        observation_end:
+          type: string
+          format: date
+
+    SeriesUpdatesResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        filter_value:
+          type: string
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeriesUpdate'
+
+    VintageDate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+
+    VintageDatesResponse:
+      type: object
+      properties:
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        order_by:
+          type: string
+        sort_order:
+          type: string
+        count:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+        vintage_dates:
+          type: array
+          items:
+            type: string
+            format: date
+
+    Error:
+      type: object
+      properties:
+        error_code:
+          type: integer
+          description: Error code
+        error_message:
+          type: string
+          description: Error message
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid parameters or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: 400
+            error_message: "Bad Request. Variable api_key has not been set."
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    TooManyRequests:
+      description: Too many requests - Rate limit exceeded (120 requests per minute)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: 429
+            error_message: "Too Many Requests. Exceeded rate limit of 120 requests per minute."
