@@ -1,0 +1,205 @@
+openapi: 3.0.0
+info:
+  title: FRED API
+  version: '1.0'
+  description: |-
+    An OpenAPI specification for the FRED® API from the Federal Reserve Bank of St. Louis.
+
+    The FRED API provides access to over 500,000 data series from various sources.
+  termsOfService: https://fred.stlouisfed.org/docs/api/terms_of_use.html
+  contact:
+    name: St. Louis Fed Webmaster
+    url: https://research.stlouisfed.org/contactus.php
+    email: webmaster@research.stlouisfed.org
+  license:
+    name: Terms of Use
+    url: https://fred.stlouisfed.org/docs/api/terms_of_use.html
+servers:
+  - url: https://api.stlouisfed.org/fred
+    description: Production server
+paths:
+  /category:
+    get:
+      summary: Get a category.
+      description: Get a category.
+      operationId: getCategory
+      tags:
+        - category
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - name: category_id
+          in: query
+          description: The id for a category.
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+  /releases:
+    get:
+      summary: Get all releases of economic data.
+      description: Get all releases of economic data.
+      operationId: getReleases
+      tags:
+        - release
+      parameters:
+        - $ref: '#/components/parameters/api_key'
+        - $ref: '#/components/parameters/file_type'
+        - $ref: '#/components/parameters/realtime_start'
+        - $ref: '#/components/parameters/realtime_end'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/order_by'
+        - $ref: '#/components/parameters/sort_order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  releases:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Release'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  releases:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Release'
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        parent_id:
+          type: integer
+          format: int32
+    Release:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        realtime_start:
+          type: string
+          format: date
+        realtime_end:
+          type: string
+          format: date
+        name:
+          type: string
+        press_release:
+          type: boolean
+        link:
+          type: string
+          format: uri
+  parameters:
+    api_key:
+      name: api_key
+      in: query
+      description: Your API key.
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z0-9]{32}$'
+    file_type:
+      name: file_type
+      in: query
+      description: The type of file to send.
+      required: false
+      schema:
+        type: string
+        enum:
+          - xml
+          - json
+        default: xml
+    realtime_start:
+      name: realtime_start
+      in: query
+      description: The start of the real-time period.
+      required: false
+      schema:
+        type: string
+        format: date
+    realtime_end:
+      name: realtime_end
+      in: query
+      description: The end of the real-time period.
+      required: false
+      schema:
+        type: string
+        format: date
+    limit:
+      name: limit
+      in: query
+      description: The maximum number of results to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    offset:
+      name: offset
+      in: query
+      description: The number of results to skip.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    order_by:
+      name: order_by
+      in: query
+      description: Order results by values of the specified attribute.
+      required: false
+      schema:
+        type: string
+        enum:
+          - release_id
+          - name
+          - press_release
+          - realtime_start
+          - realtime_end
+        default: release_id
+    sort_order:
+      name: sort_order
+      in: query
+      description: Sort results is ascending or descending order.
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: asc
